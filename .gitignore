@@ -1,0 +1,33 @@
+# ---- 数据文件 / Data files (do NOT commit raw or derived EEG data) ----
+data/raw/**
+data/derivatives/**
+!data/raw/.gitkeep
+!data/derivatives/.gitkeep
+
+# EEGLAB datasets / 中间数据
+*.set
+*.fdt
+*.mff
+*.mff/
+*.edf
+*.bdf
+*.cnt
+*.mat
+
+# ---- 结果输出 / Results ----
+results/**
+!results/.gitkeep
+
+# ---- MATLAB 临时文件 ----
+*.asv
+*.m~
+*.mex*
+slprj/
+octave-workspace
+
+# ---- 操作系统 / 编辑器 ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
