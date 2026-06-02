@@ -1,0 +1,5 @@
+subject_id,group,condition,raw_file
+sub-01,PD,MedOn,PD_Med on_subject01_20230427_102415.mff
+sub-01,PD,MedOff,PD_Med off_subject01_20230427_110000.mff
+sub-02,PD,MedOn,PD_Med on_subject02_20230501_090000.mff
+sub-02,PD,MedOff,PD_Med off_subject02_20230501_093000.mff
