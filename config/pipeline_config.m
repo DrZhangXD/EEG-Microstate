@@ -11,7 +11,7 @@ function cfg = pipeline_config()
 %   用法 / Usage:
 %       cfg = pipeline_config();
 %
-%   作者 / Author: 张小黑 (zhangxudong) ; 整理与扩展 by pipeline refactor.
+%   作者 / Author: 张旭东 (Zhang Xudong) ; 整理与扩展 by pipeline refactor.
 
 % =========================================================================
 % 1. 路径设置 / PATHS
