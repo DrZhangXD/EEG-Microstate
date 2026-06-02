@@ -49,5 +49,9 @@
 
 ## 领域文献占位 / Domain-specific (to add)
 
-> 请补充与**帕金森病 EEG 微状态**、**多巴胺能药物（Med-ON/OFF）**相关的具体文献，
-> 以支持你的研究假设与结果讨论。
+> 请根据你的研究主题补充相关领域的具体文献（如特定人群、临床状态、发育阶段或实验
+> 操纵下的 EEG 微状态研究），以支持你的研究假设与结果讨论。
+>
+> Add the domain-specific references relevant to your study (e.g. EEG microstate
+> work in your population, clinical state, developmental stage, or experimental
+> manipulation) to support your hypotheses and discussion.

@@ -1,10 +1,12 @@
-# PD-EEG Microstate Analysis Pipeline
+# EEG Microstate Analysis Pipeline
 
 **English** | [简体中文](README.zh-CN.md)
 
-A reproducible **MATLAB / EEGLAB** pipeline for **preprocessing** and **EEG
-microstate analysis** of resting-state EEG in Parkinson's disease (PD) patients —
-for example, comparing the medication **ON vs OFF** states.
+A reproducible, **general-purpose MATLAB / EEGLAB** pipeline for
+**preprocessing** and **EEG microstate analysis** of resting-state EEG. It is
+not tied to any particular population or paradigm — use it for patients vs.
+controls, within-subject conditions (e.g. eyes-closed/eyes-open, pre/post, drug
+ON/OFF), or a single group.
 
 The project started from an original EEGLAB preprocessing snippet, which has
 been turned into a parameterised, batch-capable codebase; the missing
@@ -27,7 +29,7 @@ The full workflow runs in five steps:
 | 2. Segment | `code/microstate/microstate_segment.m` | Modified *k*-means over all subjects' GFP peaks → shared prototype maps (A/B/C/D) |
 | 3. Back-fit | `code/microstate/microstate_backfit.m` | Fit prototypes to each subject's continuous EEG, smooth, compute measures |
 | 4. Export | `code/microstate/export_microstate_stats.m` | Flatten to analysis-ready CSVs (incl. transition probabilities) |
-| 5. Statistics | `code/stats/group_statistics.m` | MedOn vs MedOff (or between-group) *t*-tests, FDR correction, bar charts |
+| 5. Statistics | `code/stats/group_statistics.m` | Between-condition or between-group *t*-tests, FDR correction, bar charts |
 
 The microstate measures produced are: **mean Duration**, **Occurrence**
 (per second), **Coverage** (fraction of time), **GEV** (global explained
@@ -121,11 +123,12 @@ inspect the output of each stage.
 |--------|---------|---------|
 | `subject_id` | Subject identifier | `sub-01` |
 | `group` | Group label | `PD` / `HC` |
-| `condition` | Condition (the two levels of a paired design) | `MedOn` / `MedOff` |
-| `raw_file` | Filename relative to `data/raw/`, or an absolute path | `PD_Med on_..._.mff` |
+| `condition` | Condition (the two levels of a paired design) | `cond1` / `cond2` |
+| `raw_file` | Filename relative to `data/raw/`, or an absolute path | `sub-01_cond1.mff` |
 
-For a within-subject (paired) MedOn-vs-MedOff comparison, give each
-`subject_id` two rows (one per `condition`).
+For a within-subject (paired) comparison, give each `subject_id` one row per
+`condition`. For a between-group comparison, set `cfg.stats.factor = 'group'`
+and `cfg.stats.design = 'independent'`.
 
 ---
 

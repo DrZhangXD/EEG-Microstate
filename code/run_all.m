@@ -1,5 +1,5 @@
-% RUN_ALL  PD 患者 EEG 微状态分析：端到端主流程。
-%          PD-EEG microstate analysis: end-to-end master script.
+% RUN_ALL  EEG 微状态分析：端到端主流程。
+%          EEG microstate analysis: end-to-end master script.
 %
 %   逐步运行预处理 -> 组聚类 -> 回拟合 -> 导出 -> 统计。
 %   Runs preprocessing -> segmentation -> back-fit -> export -> statistics.

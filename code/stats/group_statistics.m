@@ -1,5 +1,5 @@
 function results = group_statistics(cfg, T)
-% GROUP_STATISTICS  对微状态参数做组间/条件间比较 (如 MedOn vs MedOff)。
+% GROUP_STATISTICS  对微状态参数做组间/条件间比较。
 %                   Group/condition comparison of microstate measures.
 %
 %   results = group_statistics(cfg)        % 读取 results/microstate_measures.csv

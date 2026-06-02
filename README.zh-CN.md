@@ -1,10 +1,10 @@
-# PD-EEG 微状态分析流程
+# EEG 微状态分析流程
 
 [English](README.md) | **简体中文**
 
-基于 **MATLAB + EEGLAB** 的帕金森病（PD）患者静息态脑电（EEG）**预处理**与
-**微状态（microstate）分析**的可复现流程，例如比较服药开（Med-ON）与
-停药（Med-OFF）两种状态。
+基于 **MATLAB + EEGLAB** 的**通用**静息态脑电（EEG）**预处理**与
+**微状态（microstate）分析**可复现流程。不限定具体人群或范式——可用于
+患者 vs 对照、被试内不同条件（如闭眼/睁眼、前/后、用药开/关），或单组分析。
 
 本仓库在原始 EEGLAB 预处理片段的基础上，整理为参数化、可批处理的工程，
 并补全了**微状态聚类、回拟合、参数提取与组间统计**等环节。
@@ -25,7 +25,7 @@
 | 2. 微状态聚类 | `code/microstate/microstate_segment.m` | 在所有被试 GFP 峰上做修正 k-means，得到共享原型图 A/B/C/D |
 | 3. 回拟合 | `code/microstate/microstate_backfit.m` | 将原型回拟合到每个被试连续数据，平滑并计算参数 |
 | 4. 参数导出 | `code/microstate/export_microstate_stats.m` | 整理为分析友好的 CSV（含转移概率） |
-| 5. 组间统计 | `code/stats/group_statistics.m` | MedOn vs MedOff（或组间）t 检验、FDR 校正、柱状图 |
+| 5. 组间统计 | `code/stats/group_statistics.m` | 条件间或组间 t 检验、FDR 校正、柱状图 |
 
 微状态参数包括：**平均持续时间 (Duration)**、**出现频率 (Occurrence)**、
 **时间覆盖率 (Coverage)**、**全局解释方差 (GEV)** 和 **转移概率 (Transition Probabilities)**。
@@ -113,10 +113,11 @@ run_all
 |----|------|------|
 | `subject_id` | 被试编号 | `sub-01` |
 | `group` | 组别 | `PD` / `HC` |
-| `condition` | 条件（配对设计的两个水平）| `MedOn` / `MedOff` |
-| `raw_file` | 相对 `data/raw/` 的文件名，或绝对路径 | `PD_Med on_..._.mff` |
+| `condition` | 条件（配对设计的两个水平）| `cond1` / `cond2` |
+| `raw_file` | 相对 `data/raw/` 的文件名，或绝对路径 | `sub-01_cond1.mff` |
 
-被试内（配对）比较 MedOn vs MedOff 时，同一 `subject_id` 写两行（两种 condition）。
+被试内（配对）比较时，同一 `subject_id` 每个 `condition` 各写一行。
+若做组间比较，设 `cfg.stats.factor = 'group'`、`cfg.stats.design = 'independent'`。
 
 ---
 
