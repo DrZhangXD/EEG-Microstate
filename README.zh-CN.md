@@ -6,9 +6,8 @@
 **微状态（microstate）分析**的可复现流程，例如比较服药开（Med-ON）与
 停药（Med-OFF）两种状态。
 
-本仓库在原始预处理片段（见 [`docs/original_pipeline_snippet.m`](docs/original_pipeline_snippet.m)）
-的基础上，整理为参数化、可批处理的工程，并补全了**微状态聚类、回拟合、参数提取
-与组间统计**等环节。
+本仓库在原始 EEGLAB 预处理片段的基础上，整理为参数化、可批处理的工程，
+并补全了**微状态聚类、回拟合、参数提取与组间统计**等环节。
 
 ---
 
@@ -78,8 +77,7 @@ EEG-Microstate/
 ├── docs/
 │   ├── pipeline.md              # 流程详解
 │   ├── methods.md               # 论文方法学描述
-│   ├── references.md            # 参考文献
-│   └── original_pipeline_snippet.m  # 原始片段存档
+│   └── references.md            # 参考文献
 ├── data/
 │   ├── raw/                     # 原始 .mff（不纳入版本控制）
 │   └── derivatives/             # 预处理与标注后的 .set（不纳入版本控制）
