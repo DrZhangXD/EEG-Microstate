@@ -1,177 +1,222 @@
-# PD-EEG 微状态分析流程 / PD-EEG Microstate Analysis Pipeline
+# PD-EEG Microstate Analysis Pipeline
 
-基于 **MATLAB + EEGLAB** 的帕金森病（PD）患者静息态脑电（EEG）**预处理**与**微状态（microstate）分析**的可复现流程。
+**English** | [简体中文](README.zh-CN.md)
 
-A reproducible **MATLAB/EEGLAB** pipeline for **preprocessing** and **EEG
-microstate analysis** of resting-state EEG in Parkinson's disease (PD)
-patients (e.g. comparing the medication **ON vs OFF** states).
+A reproducible **MATLAB / EEGLAB** pipeline for **preprocessing** and **EEG
+microstate analysis** of resting-state EEG in Parkinson's disease (PD) patients —
+for example, comparing the medication **ON vs OFF** states.
 
-> 本仓库在原始预处理片段（见 `docs/original_pipeline_snippet.m`，作者：张小黑）的基础上，
-> 整理为参数化、可批处理的工程，并补全了**微状态聚类、回拟合、参数提取与组间统计**等环节。
-
----
-
-## 1. 项目能做什么 / What it does
-
-```
-原始 .mff ──► 预处理 ──► 组水平微状态聚类 ──► 回拟合 ──► 参数提取 ──► 组间统计/绘图
- raw .mff    preprocess   group clustering    back-fit    measures    statistics/figures
-```
-
-完整流程分五步：
-
-| 步骤 | 脚本 | 说明 |
-|------|------|------|
-| 1. 预处理 | `code/preprocessing/batch_preprocess.m` | 导入、滤波、ASR 清理、平均参考、ICA + ICLabel 去伪迹、球面插补 |
-| 2. 微状态聚类 | `code/microstate/microstate_segment.m` | 在所有被试 GFP 峰上做修正 k-means，得到共享原型图 A/B/C/D |
-| 3. 回拟合 | `code/microstate/microstate_backfit.m` | 将原型回拟合到每个被试连续数据，平滑并计算参数 |
-| 4. 参数导出 | `code/microstate/export_microstate_stats.m` | 整理为分析友好的 CSV（含转移概率） |
-| 5. 组间统计 | `code/stats/group_statistics.m` | MedOn vs MedOff（或组间）t 检验、FDR 校正、柱状图 |
-
-微状态参数包括：**平均持续时间 (Duration)**、**出现频率 (Occurrence)**、
-**时间覆盖率 (Coverage)**、**全局解释方差 (GEV)** 和 **转移概率 (Transition Probabilities)**。
+The project grew out of an original preprocessing snippet
+(see [`docs/original_pipeline_snippet.m`](docs/original_pipeline_snippet.m)). It
+has been turned into a parameterised, batch-capable codebase, and the missing
+**microstate clustering, back-fitting, measure extraction, and group statistics**
+have been added.
 
 ---
 
-## 2. 环境依赖 / Requirements
+## 1. What it does
 
-- **MATLAB** R2018b 或更高（仅核心功能；统计不依赖 Statistics Toolbox，t 检验 p 值用 `betainc` 自行计算）。
-- **EEGLAB** 2021 或更高 — <https://sccn.ucsd.edu/eeglab/>
-  - 自带插件：**clean_rawdata**（ASR）、**ICLabel**、**MFFMatlabIO**（读取 EGI `.mff`）。
-    若缺失，在 EEGLAB 菜单 *File → Manage EEGLAB extensions* 中安装。
-- **Microstate EEGlab toolbox**（Poulsen et al., 2018）— 微状态步骤必需
+```
+raw .mff ──► preprocess ──► group clustering ──► back-fit ──► measures ──► statistics / figures
+```
+
+The full workflow runs in five steps:
+
+| Step | Script | What it does |
+|------|--------|--------------|
+| 1. Preprocess | `code/preprocessing/batch_preprocess.m` | Import, filter, ASR cleaning, average reference, ICA + ICLabel artifact removal, spherical interpolation |
+| 2. Segment | `code/microstate/microstate_segment.m` | Modified *k*-means over all subjects' GFP peaks → shared prototype maps (A/B/C/D) |
+| 3. Back-fit | `code/microstate/microstate_backfit.m` | Fit prototypes to each subject's continuous EEG, smooth, compute measures |
+| 4. Export | `code/microstate/export_microstate_stats.m` | Flatten to analysis-ready CSVs (incl. transition probabilities) |
+| 5. Statistics | `code/stats/group_statistics.m` | MedOn vs MedOff (or between-group) *t*-tests, FDR correction, bar charts |
+
+The microstate measures produced are: **mean Duration**, **Occurrence**
+(per second), **Coverage** (fraction of time), **GEV** (global explained
+variance), and **Transition Probabilities**.
+
+---
+
+## 2. Requirements
+
+- **MATLAB** R2018b or newer.
+  *No Statistics and Machine Learning Toolbox is required* — *t*-test p-values are
+  computed from the incomplete beta function (`betainc`).
+- **EEGLAB** 2021 or newer — <https://sccn.ucsd.edu/eeglab/>
+  - Built-in plugins used: **clean_rawdata** (ASR), **ICLabel**, and
+    **MFFMatlabIO** (to read EGI `.mff`). If any are missing, install them via the
+    EEGLAB menu *File → Manage EEGLAB extensions*.
+- **Microstate EEGlab toolbox** (Poulsen et al., 2018) — required for the
+  microstate steps.
   - <https://github.com/atpoulsen/Microstate-EEGlab-toolbox>
-  - 可放入 `eeglab/plugins/`（自动加载），或在配置中指定路径。
+  - Either drop it into `eeglab/plugins/` (auto-loaded) or set its path in the
+    config (`cfg.paths.microstate_toolbox`).
 
-> 数据为 256 导联 EGI（GSN-HydroCel）`.mff` 文件；其他格式见“配置”节的 `cfg.import.format`。
+> The reference data are 256-channel EGI (GSN-HydroCel) `.mff` files. Other
+> formats (`.set`, `.edf`, `.bdf`) are supported via `cfg.import.format`.
 
 ---
 
-## 3. 目录结构 / Directory layout
+## 3. Repository layout
 
 ```
 EEG-Microstate/
-├── README.md
+├── README.md                    # this file (English)
+├── README.zh-CN.md              # 中文说明
 ├── config/
-│   ├── pipeline_config.m        # ★ 所有参数集中在此 / all parameters here
-│   ├── subjects_template.csv    # 被试清单模板 / manifest template
-│   └── subjects.csv             # (你创建) 实际被试清单 / your manifest
+│   ├── pipeline_config.m        # ★ ALL parameters live here
+│   ├── subjects_template.csv    # subject manifest template
+│   └── subjects.csv             # (you create) your manifest
 ├── code/
-│   ├── run_all.m                # ★ 主入口 / master script
+│   ├── run_all.m                # ★ master script
 │   ├── preprocessing/
-│   │   ├── preprocess_subject.m # 单被试预处理 / single-subject preprocessing
-│   │   └── batch_preprocess.m   # 批量预处理 / batch
+│   │   ├── preprocess_subject.m # single-subject preprocessing
+│   │   └── batch_preprocess.m   # batch over the manifest
 │   ├── microstate/
-│   │   ├── microstate_segment.m       # 组聚类 / clustering
-│   │   ├── microstate_backfit.m       # 回拟合+统计 / back-fit
-│   │   └── export_microstate_stats.m  # 导出 CSV / export
+│   │   ├── microstate_segment.m       # group-level clustering
+│   │   ├── microstate_backfit.m       # back-fit + per-subject stats
+│   │   └── export_microstate_stats.m  # export CSVs
 │   ├── stats/
-│   │   └── group_statistics.m   # 组间统计+绘图 / stats & figures
+│   │   └── group_statistics.m   # group statistics & figures
 │   └── utils/
-│       ├── init_eeglab.m        # 启动 EEGLAB / launch EEGLAB
-│       ├── load_subjects.m      # 读取清单 / read manifest
-│       └── log_msg.m            # 日志 / logging
+│       ├── init_eeglab.m        # launch EEGLAB (headless)
+│       ├── load_subjects.m      # read the manifest
+│       └── log_msg.m            # timestamped logging
 ├── docs/
-│   ├── pipeline.md              # 流程详解 / detailed walkthrough
-│   ├── methods.md               # 论文方法学描述 / methods for a paper
-│   ├── references.md            # 参考文献 / references
-│   └── original_pipeline_snippet.m  # 原始片段存档 / original snippet
+│   ├── pipeline.md              # detailed walkthrough
+│   ├── methods.md               # publication-ready Methods text
+│   ├── references.md            # references
+│   └── original_pipeline_snippet.m  # original snippet (archived)
 ├── data/
-│   ├── raw/                     # 原始 .mff（不纳入版本控制）/ raw (gitignored)
-│   └── derivatives/             # 预处理与标注后的 .set / processed
-└── results/                     # 统计表与图（gitignored）/ outputs
+│   ├── raw/                     # raw .mff (gitignored)
+│   └── derivatives/             # preprocessed / labelled .set (gitignored)
+└── results/                     # tables and figures (gitignored)
 ```
 
-> `data/` 与 `results/` 中的数据文件默认被 `.gitignore` 排除，**不会**被提交。
+> Data files in `data/` and `results/` are excluded by `.gitignore` and are
+> **never** committed.
 
 ---
 
-## 4. 快速开始 / Quick start
+## 4. Quick start
 
 ```matlab
-% 1) 编辑配置：填入 EEGLAB 路径（及微状态工具箱路径）
-edit config/pipeline_config.m      % 设置 cfg.paths.eeglab
+% 1) Edit the config: set the EEGLAB path (and the microstate toolbox path)
+edit config/pipeline_config.m       % set cfg.paths.eeglab
 
-% 2) 准备被试清单
-% 复制模板并填入你的被试 / copy the template and fill in your subjects
+% 2) Prepare the subject manifest: copy the template and fill it in
 copyfile('config/subjects_template.csv', 'config/subjects.csv');
 edit config/subjects.csv
 
-% 3) 把原始 .mff 放进 data/raw/（或在 subjects.csv 中写绝对路径）
+% 3) Put the raw .mff files in data/raw/  (or use absolute paths in the manifest)
 
-% 4) 运行完整流程 / run everything
+% 4) Run the whole pipeline
 cd code
 run_all
 ```
 
-或在 `code/run_all.m` 中逐节（Ctrl+Enter）执行，便于检视每一步结果。
+You can also step through `code/run_all.m` section by section (Ctrl+Enter) to
+inspect the output of each stage.
 
-### 被试清单格式 / Manifest format (`config/subjects.csv`)
+### Manifest format (`config/subjects.csv`)
 
-| 列 column | 含义 | 示例 |
-|-----------|------|------|
-| `subject_id` | 被试编号 | `sub-01` |
-| `group` | 组别 | `PD` / `HC` |
-| `condition` | 条件（配对设计的两个水平）| `MedOn` / `MedOff` |
-| `raw_file` | 相对 `data/raw/` 的文件名，或绝对路径 | `PD_Med on_..._.mff` |
+| Column | Meaning | Example |
+|--------|---------|---------|
+| `subject_id` | Subject identifier | `sub-01` |
+| `group` | Group label | `PD` / `HC` |
+| `condition` | Condition (the two levels of a paired design) | `MedOn` / `MedOff` |
+| `raw_file` | Filename relative to `data/raw/`, or an absolute path | `PD_Med on_..._.mff` |
 
-被试内（配对）比较 MedOn vs MedOff 时，同一 `subject_id` 写两行（两种 condition）。
-
----
-
-## 5. 输出 / Outputs (`results/`)
-
-| 文件 | 内容 |
-|------|------|
-| `group_prototypes.set` / `.mat` | 组水平微状态原型图（共享 A/B/C/D…） |
-| `fig_microstate_prototypes.png` | 原型地形图 |
-| `microstate_measures.csv` | 每被试每微状态的 Duration/Occurrence/Coverage/GEV（宽表） |
-| `microstate_transitions.csv` | 转移概率矩阵（长表） |
-| `microstate_group_stats.csv` | 组间/条件间 t 检验、FDR 校正后 p 值、效应量 |
-| `fig_<measure>_by_<factor>.png` | 各参数的分组柱状图（含显著性星标） |
-
-`microstate_measures.csv` 与 `microstate_transitions.csv` 可直接导入
-R / SPSS / Python 做进一步建模（如混合效应模型）。
+For a within-subject (paired) MedOn-vs-MedOff comparison, give each
+`subject_id` two rows (one per `condition`).
 
 ---
 
-## 6. 与原始 pipeline 的关系 / Relation to the original
+## 5. Configuration highlights
 
-本工程**忠实保留**了原始预处理参数（带通 1–40 Hz、陷波 48–52 Hz、重采样 500 Hz、
-`clean_rawdata`/ASR 的全部阈值、平均参考、`runica` extended、ICLabel 阈值 0.7、球面插补），
-同时做了两点工程化改进，均可在 `config/pipeline_config.m` 中开关：
+Everything is centralised in [`config/pipeline_config.m`](config/pipeline_config.m).
+The most commonly edited fields:
 
-1. **ICA 的 PCA 维数**默认改为按**数据有效秩**自动确定（`cfg.ica.pca = []`），
-   避免在 `clean_rawdata` 移除坏导后固定 `pca=253` 造成的秩不匹配；
-   如需复刻原值，将其设为 `253`。
-2. **插补后再次平均参考**（`cfg.reref.after_interp = true`）：
-   微状态分析对参考敏感，插补会引入新通道，故重做平均参考（推荐）。
-
-详见 `docs/pipeline.md` 的逐步说明与依据。
-
----
-
-## 7. 注意事项 / Notes & assumptions
-
-- 由于原文档仅含预处理片段，**微状态部分的方法选择**（修正 k-means、K=4、
-  GFP 峰聚类、忽略极性、30 ms 平滑等）采用了领域内**标准默认值**，全部在配置中可调。
-- **微状态数 K** 默认固定为 4（经典 A/B/C/D）。若想数据驱动地选择，
-  将 `cfg.micro.Nmicro_final = []`，并交互检视 CV 曲线后再固定。
-- 单位：`pop_micro_stats` 返回的 Duration/Occurrence 单位随工具箱版本略有差异，
-  导出表保留原始数值，请按所用版本核对（详见 `docs/methods.md`）。
-- 本流程默认 **静息态** 数据；任务态/分段数据需调整 `cfg.micro.select.datatype`。
+| Field | Purpose | Default |
+|-------|---------|---------|
+| `cfg.paths.eeglab` | EEGLAB install directory (**required**) | `''` |
+| `cfg.paths.microstate_toolbox` | Microstate toolbox path (if not a plugin) | `''` |
+| `cfg.import.format` | Raw format: `mff` / `set` / `edf` / `bdf` | `mff` |
+| `cfg.filter.bandpass_lo/hi` | Band-pass cutoffs (Hz) | `1` / `40` |
+| `cfg.filter.notch_lo/hi` | Notch band (Hz) | `48` / `52` |
+| `cfg.resample.srate` | Target sampling rate (Hz) | `500` |
+| `cfg.ica.pca` | ICA PCA dim — `[]` = auto (data rank) | `[]` |
+| `cfg.iclabel.flag_thresholds` | ICLabel rejection probabilities | `0.7` for artifact classes |
+| `cfg.micro.Nmicro_final` | Number of microstates (`[]` = pick interactively) | `4` |
+| `cfg.stats.factor` / `cfg.stats.design` | Contrast (`condition`/`group`) and design (`paired`/`independent`) | `condition` / `paired` |
+| `cfg.stats.correction` | Multiple-comparison correction (`fdr`/`bonferroni`/`none`) | `fdr` |
 
 ---
 
-## 8. 参考文献 / References
+## 6. Outputs (`results/`)
 
-完整列表见 [`docs/references.md`](docs/references.md)。核心工具与方法：
-EEGLAB (Delorme & Makeig, 2004)、ICLabel (Pion-Tonachini et al., 2019)、
-ASR/clean_rawdata (Mullen et al., 2015)、微状态方法 (Pascual-Marqui et al., 1995;
-Michel & Koenig, 2018)、Microstate EEGlab toolbox (Poulsen et al., 2018)。
+| File | Contents |
+|------|----------|
+| `group_prototypes.set` / `.mat` | Group-level microstate prototype maps (shared A/B/C/D…) |
+| `fig_microstate_prototypes.png` | Prototype topographies |
+| `microstate_measures.csv` | Per-subject, per-map Duration / Occurrence / Coverage / GEV (wide) |
+| `microstate_transitions.csv` | Transition-probability matrix (long) |
+| `microstate_group_stats.csv` | Group/condition *t*-tests, FDR-corrected *p*-values, effect sizes |
+| `fig_<measure>_by_<factor>.png` | Grouped bar charts per measure (with significance stars) |
+
+`microstate_measures.csv` and `microstate_transitions.csv` import directly into
+R / SPSS / Python for further modelling (e.g. linear mixed-effects models).
 
 ---
 
-## 许可 / License
+## 7. Relation to the original pipeline
 
-见 [`LICENSE`](LICENSE)（MIT）。研究数据请遵循相应伦理审批与数据使用协议，勿提交至本仓库。
+This project **faithfully preserves** the original preprocessing parameters
+(band-pass 1–40 Hz, notch 48–52 Hz, resample 500 Hz, all `clean_rawdata`/ASR
+thresholds, average reference, `runica` extended, ICLabel threshold 0.7,
+spherical interpolation). It adds two engineering improvements, both
+toggleable in `config/pipeline_config.m`:
+
+1. **ICA PCA dimensionality** now defaults to the **effective data rank**
+   (`cfg.ica.pca = []`), avoiding the rank mismatch that a fixed `pca = 253`
+   can cause after `clean_rawdata` removes bad channels. Set it to `253` to
+   reproduce the original value.
+2. **Re-reference after interpolation** (`cfg.reref.after_interp = true`):
+   microstate analysis is reference-sensitive and interpolation introduces new
+   channels, so the average reference is recomputed (recommended).
+
+See [`docs/pipeline.md`](docs/pipeline.md) for the step-by-step rationale.
+
+---
+
+## 8. Notes & assumptions
+
+- Because the source document contained only the preprocessing snippet, the
+  **microstate methodology choices** (modified *k*-means, K = 4, GFP-peak
+  clustering, polarity-invariant fitting, 30 ms smoothing) use **standard
+  defaults** from the field, all adjustable in the config.
+- **Number of microstates K** defaults to 4 (the classic A/B/C/D). For a
+  data-driven choice, set `cfg.micro.Nmicro_final = []` and inspect the CV curve
+  interactively before fixing K.
+- **Units:** the Duration/Occurrence values returned by `pop_micro_stats` vary
+  slightly between toolbox versions; the exported tables keep the raw values, so
+  verify the units against your installed version (see
+  [`docs/methods.md`](docs/methods.md)).
+- The pipeline assumes **resting-state** data; for task/epoched data, adjust
+  `cfg.micro.select.datatype`.
+
+---
+
+## 9. References
+
+See [`docs/references.md`](docs/references.md) for the full list. Core tools and
+methods: EEGLAB (Delorme & Makeig, 2004), ICLabel (Pion-Tonachini et al., 2019),
+ASR/clean_rawdata (Mullen et al., 2015), microstate methodology
+(Pascual-Marqui et al., 1995; Michel & Koenig, 2018), and the Microstate EEGlab
+toolbox (Poulsen et al., 2018).
+
+---
+
+## License
+
+[MIT](LICENSE). Please handle research data in accordance with the relevant
+ethics approvals and data-use agreements — do not commit it to this repository.
