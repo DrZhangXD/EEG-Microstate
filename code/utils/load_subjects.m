@@ -7,7 +7,7 @@ function subjects = load_subjects(cfg)
 %   CSV 列 / required columns:
 %       subject_id  - 被试编号 / subject id  (e.g. sub-01)
 %       group       - 组别 / group           (e.g. PD, HC)
-%       condition   - 条件 / condition       (e.g. MedOn, MedOff)
+%       condition   - 条件 / condition       (e.g. cond1, cond2)
 %       raw_file    - 原始文件名 (相对 cfg.paths.raw) / raw filename
 %
 %   返回 / returns: 1xN struct，字段同上，并附加 .raw_path / .deriv_path

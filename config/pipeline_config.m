@@ -1,6 +1,6 @@
 function cfg = pipeline_config()
-% PIPELINE_CONFIG  集中管理整个 PD-EEG 微状态分析流程的所有参数。
-%                  Central configuration for the PD-EEG microstate pipeline.
+% PIPELINE_CONFIG  集中管理整个 EEG 微状态分析流程的所有参数。
+%                  Central configuration for the EEG microstate pipeline.
 %
 %   所有脚本都通过 `cfg = pipeline_config();` 读取参数，避免参数散落在各处。
 %   修改路径 / 参数时只需编辑本文件。
@@ -149,8 +149,8 @@ cfg.micro.smooth.polarity   = 0;
 % 11. 组间统计 / GROUP STATISTICS
 % =========================================================================
 % 主比较因子 / main contrast: 列名见 subjects.csv 的 'condition' / 'group'
-cfg.stats.factor = 'condition';        % 'condition' (MedOn/MedOff) 或 'group'
-% 比较设计 / design: 'paired' (被试内, 如 MedOn vs MedOff) | 'independent' (组间)
+cfg.stats.factor = 'condition';        % 'condition' (被试内条件) 或 'group' (组别)
+% 比较设计 / design: 'paired' (被试内, 同一被试的两个条件) | 'independent' (组间)
 cfg.stats.design = 'paired';
 cfg.stats.alpha  = 0.05;
 % 多重比较校正 / multiple-comparison correction: 'fdr' | 'bonferroni' | 'none'

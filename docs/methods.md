@@ -10,15 +10,21 @@ All parameters live in `config/pipeline_config.m`.
 
 ## 1. 被试与数据采集 / Participants and recording
 
-> ⚠️ 占位：请根据你的实验填写被试人数、年龄、性别、病程、UPDRS、采集设备与时长。
+> ⚠️ 占位：请根据你的研究填写被试人数、年龄、性别、分组/条件、采集设备与时长。
+> 本流程与具体人群/范式无关，可用于患者 vs 对照、被试内不同条件（如闭眼/睁眼、
+> 前/后、用药开/关）或单组分析。
 
-EEG 数据使用 256 导联 EGI（GSN-HydroCel）系统采集，存储为 `.mff` 格式。
-每位 PD 患者在**服药开（Med-ON）**与**停药（Med-OFF）**两种状态下记录静息态
-脑电（如闭眼 X 分钟）。
+以 256 导联 EGI（GSN-HydroCel）系统采集、存储为 `.mff` 格式为例（其他采集系统与
+格式同样适用）。在每个待比较的实验条件（或每组被试）下记录静息态脑电。
 
-EEG was recorded with a 256-channel EGI (GSN-HydroCel) system and stored in
-`.mff` format. Resting-state EEG was acquired from each PD patient in both the
-medication **ON** and **OFF** states.
+> ⚠️ Placeholder: fill in your sample size, demographics, groups/conditions,
+> recording device and duration. The pipeline is population- and
+> paradigm-agnostic (patients vs. controls, within-subject conditions such as
+> eyes-closed/eyes-open or pre/post, or a single group).
+
+As an example, EEG was recorded with a 256-channel EGI (GSN-HydroCel) system and
+stored in `.mff` format (other systems and formats are equally supported).
+Resting-state EEG was acquired for each condition (or group) of interest.
 
 ---
 
@@ -103,8 +109,9 @@ computed.
 ## 4. 统计分析 / Statistical analysis
 
 对应 `code/stats/group_statistics.m`。对每个微状态参数（Duration、Occurrence、
-Coverage、GEV）逐类比较 **Med-ON vs Med-OFF**：被试内（配对）设计用配对 t 检验，
-组间设计用 Welch t 检验。多重比较用 **Benjamini–Hochberg FDR** 校正
+Coverage、GEV）在对比因子的两个水平间逐类比较（例如两种条件或两组被试）：
+被试内（配对）设计用配对 t 检验，组间设计用 Welch t 检验。多重比较用
+**Benjamini–Hochberg FDR** 校正
 （Benjamini & Hochberg, 1995），显著性水平 α = 0.05。同时报告效应量
 （配对 Cohen's *d_z* / 独立样本 Cohen's *d*）。
 
