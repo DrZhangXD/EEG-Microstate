@@ -6,9 +6,8 @@ A reproducible **MATLAB / EEGLAB** pipeline for **preprocessing** and **EEG
 microstate analysis** of resting-state EEG in Parkinson's disease (PD) patients —
 for example, comparing the medication **ON vs OFF** states.
 
-The project grew out of an original preprocessing snippet
-(see [`docs/original_pipeline_snippet.m`](docs/original_pipeline_snippet.m)). It
-has been turned into a parameterised, batch-capable codebase, and the missing
+The project started from an original EEGLAB preprocessing snippet, which has
+been turned into a parameterised, batch-capable codebase; the missing
 **microstate clustering, back-fitting, measure extraction, and group statistics**
 have been added.
 
@@ -84,8 +83,7 @@ EEG-Microstate/
 ├── docs/
 │   ├── pipeline.md              # detailed walkthrough
 │   ├── methods.md               # publication-ready Methods text
-│   ├── references.md            # references
-│   └── original_pipeline_snippet.m  # original snippet (archived)
+│   └── references.md            # references
 ├── data/
 │   ├── raw/                     # raw .mff (gitignored)
 │   └── derivatives/             # preprocessed / labelled .set (gitignored)
